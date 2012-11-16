@@ -1,25 +1,12 @@
 async = require 'async'
-request = require 'request'
 csv = require 'csv'
-_ = require 'underscore'
 fs = require 'fs'
+request = require 'request'
 mongoose = require('mongoose')
 require './mongoose_schemas'
+_ = require 'underscore'
 
-# Store CSV file locally -- get either family email or head of household but prefer family if it exists
-# Simplify / cleanup data
-# store in mongodb as person
-# If a person is removed, mark them not in the ward any longer. Pull list of names that are inWard. Remove each time iterate. Once done, any left mark as not inWard
-# fetch white/black lists and store in mongodb
-# write function to create master list -- i.e. those not on blacklist or are on whitelist and have needed information (email for everyone and sex to go on RS/EQ lists)
-
-# write function which fetches people w/ missing info -- e.g. no email + no sex
-# Refactor how things are organized
-# Build backbone app for admin
-# Just start with problem people view + ui for storing information sort by when added.
-# write function which refreshes membership + lists and emails admin those people who have problems + links to ui for fixing them.
-# write function to sync people with mailchimp -- pushes everyone to appropriate MailChimp lists
-fetchMembershipList = (callback) ->
+exports.download = (callback) ->
   #request.post({ url: 'https://www.lds.org/login.html', form: { username: 'xXxXxXxXxXx', password: 'xXxXxXxXxXx' }}, (error, response, body) ->
     #console.log error
     #console.log response.statusCode
@@ -47,7 +34,8 @@ fetchMembershipList = (callback) ->
     #)
   #)
 
-saveMembershipListToMongo = (error, membership) ->
+
+exports.save = (membership) ->
   Person = mongoose.model 'Person'
 
   # Function to save / update a person model.
@@ -59,6 +47,7 @@ saveMembershipListToMongo = (error, membership) ->
       person.name = member['Head Of House Name']
     else
       callback(null)
+      return
     person.address = member['Family Address']
     person.phone = member['Family Phone']
 
@@ -78,6 +67,7 @@ saveMembershipListToMongo = (error, membership) ->
         personModel.save (err) ->
           if err then callback(err)
           callback(null)
+          return
       else
         # Check if any information has changed.
         if mongoPerson.email isnt person.email or mongoPerson.address isnt person.address or mongoPerson.phone isnt person.phone or mongoPerson.inWard is false
@@ -91,8 +81,10 @@ saveMembershipListToMongo = (error, membership) ->
           # Save updated person model
           mongoPerson.save (err) ->
             if err then callback(err) else callback(null)
+            return
         else
           callback(null)
+          return
     )
 
   async.forEachSeries(membership, saveMember, (err) ->
@@ -101,7 +93,7 @@ saveMembershipListToMongo = (error, membership) ->
 
   # Check if any members in the DB aren't there any more. If they're not,
   # mark that they're not in the ward any longer.
-  loadAllCurrentWardMembers (currentMembers) ->
+  exports.load (err, currentMembers) ->
     membersThatAreNoMore = _.filter(currentMembers, (cmember) -> if _.find(membership, (member) -> return member['Head Of House Name'] is cmember.name and member['Family Phone'] is cmember.phone)? then return false else return true)
     for member in membersThatAreNoMore
       member.inWard = false
@@ -109,33 +101,8 @@ saveMembershipListToMongo = (error, membership) ->
       member.save()
 
 # Load all current members (as marked by the inWard boolean).
-loadAllCurrentWardMembers = (callback) ->
+exports.load = (callback) ->
   Person = mongoose.model 'Person'
   Person.find( { inWard: true }, (err, persons) ->
-    callback(persons)
+    callback(err, persons)
   )
-
-# Generate a master list of people that need to be synced with MailChimp.
-# This is everyone who's mailchimpSync date is earlier then their changed date
-# and is still in the ward.
-loadPeopleToSyncMailchimp = (callback) ->
-  Person = mongoose.model 'Person'
-  Person.find({ $where: "this.inWard && (this.mailchimpSynced == null | this.mailchimpSynced > this.changed)"}, (err, persons) ->
-    if err then callback(err) else callback(null, persons)
-  )
-
-# Return list of people missing either an email address or their sex hasn't been
-# assigned yet.
-loadPeopleMissingInformation = (callback) ->
-  Person = mongoose.model 'Person'
-  Person.find()
-    .where( 'sex', null )
-    .where( 'email', null )
-    .exec( (err, persons) ->
-      if err then callback(err) else callback(null, persons)
-    )
-
-# Kick things off.
-#fetchMembershipList(saveMembershipListToMongo)
-#loadPeopleToSyncMailchimp((error, persons) -> console.log persons.length)
-loadPeopleMissingInformation((error, persons) -> console.log persons.length)
