@@ -13,12 +13,12 @@ wardMembership = require './ward_membership'
 # fetch white/black lists and store in mongodb
 # write function to create master list -- i.e. those not on blacklist or are on whitelist and have needed information (email for everyone and sex to go on RS/EQ lists)
 # write function which fetches people w/ missing info -- e.g. no email + no sex
+# Refactor how things are organized + add config file + setup repo on Github
 
-# Refactor how things are organized + setup repo on Github
+# write function to sync people with mailchimp -- pushes everyone to appropriate MailChimp lists
 # Build backbone app for admin
 # Just start with problem people view + ui for storing information sort by when added.
 # write function which refreshes membership + lists and emails admin those people who have problems + links to ui for fixing them.
-# write function to sync people with mailchimp -- pushes everyone to appropriate MailChimp lists
 
 
 
