@@ -1,4 +1,5 @@
 async = require 'async'
+config = require './config'
 csv = require 'csv'
 fs = require 'fs'
 request = require 'request'
@@ -7,12 +8,12 @@ require './mongoose_schemas'
 _ = require 'underscore'
 
 exports.download = (callback) ->
-  #request.post({ url: 'https://www.lds.org/login.html', form: { username: 'xXxXxXxXxXx', password: 'xXxXxXxXxXx' }}, (error, response, body) ->
+  #request.post({ url: 'https://www.lds.org/login.html', form: { username: config.ldsUsername, password: config.ldsPassword }}, (error, response, body) ->
     #console.log error
     #console.log response.statusCode
     #console.log body
 
-    #request('https://lds.org/directory/services/ludrs/unit/member-list/412031/csv', (error, response, body) ->
+    #request("https://lds.org/directory/services/ludrs/unit/member-list/#{ config.ldsUnitId }/csv", (error, response, body) ->
       #console.log error
       #console.log response.statusCode
       #console.log body

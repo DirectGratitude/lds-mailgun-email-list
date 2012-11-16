@@ -2,6 +2,7 @@ request = require 'request'
 csv = require 'csv'
 mongoose = require('mongoose')
 require './mongoose_schemas'
+config = require './config'
 
 exports.download = (spreadsheetUrl, callback) ->
   # Request google.com first to get a Google cookie.
@@ -32,14 +33,14 @@ fetchWhiteBlackLists = ->
   # Remove everything in this collection in MongoDB.
   WhiteBlackList.remove (err) ->
     unless err
-      exports.download('https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=0AgTd0uGWN6wQdFJvbmJPOVZwNEJfWnpmaDBwM2RZRkE&output=csv', (err, data) ->
+      exports.download(config.whitelist, (err, data) ->
         console.log data
         for datum in data
           if datum.Email?
             model = new WhiteBlackList( { email: datum.Email, type: 'white' } )
             model.save()
       )
-      exports.download('https://docs.google.com/spreadsheet/pub?hl=en_US&hl=en_US&key=0AgTd0uGWN6wQdFI0OVBPSUU1aEJMeF9xQl9ZaUVBY2c&output=csv', (err, data) ->
+      exports.download(config.blacklist, (err, data) ->
         console.log data
         for datum in data
           if datum.Email?
