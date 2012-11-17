@@ -107,3 +107,9 @@ exports.load = (callback) ->
   Person.find( { inWard: true }, (err, persons) ->
     callback(err, persons)
   )
+
+exports.loadPeopleProblems = (callback) ->
+  Person = mongoose.model 'Person'
+  Person.find( $or: [{ sex: null }, { email: null }], (err, persons) ->
+      if err then callback(err) else callback(null, persons)
+  )
