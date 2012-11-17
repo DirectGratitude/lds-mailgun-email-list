@@ -5,11 +5,11 @@ session:
       root: "."
       splits:
         - cmd: "pwd"
-        - cmd: "coffee server.coffee"
+        - cmd: "coffee app.coffee"
           width: 40
-        - cmd: "brunch watch -s"
+        - cmd: ["cd admin-app", "brunch watch"]
           height: 33
           target: "bottom-right"
-        - cmd: ["cd app/styles",  "compass watch"]
+        - cmd: ["cd admin-app/app/styles",  "compass watch"]
           height: 50
           target: "top-right"
