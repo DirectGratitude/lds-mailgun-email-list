@@ -5,6 +5,11 @@ fs = require 'fs'
 mongoose = require('mongoose')
 require './mongoose_schemas'
 wardMembership = require './ward_membership'
+config = require './config'
+Mailchimp = require './mailchimp'
+
+testList = config.testList
+testList = new Mailchimp(testList)
 
 # Store CSV file locally -- get either family email or head of household but prefer family if it exists
 # Simplify / cleanup data
@@ -14,11 +19,12 @@ wardMembership = require './ward_membership'
 # write function to create master list -- i.e. those not on blacklist or are on whitelist and have needed information (email for everyone and sex to go on RS/EQ lists)
 # write function which fetches people w/ missing info -- e.g. no email + no sex
 # Refactor how things are organized + add config file + setup repo on Github
-
 # write function to sync people with mailchimp -- pushes everyone to appropriate MailChimp lists
+
 # Build backbone app for admin
 # Just start with problem people view + ui for storing information sort by when added.
 # write function which refreshes membership + lists and emails admin those people who have problems + links to ui for fixing them.
+# Write unsubscribe text for the emails that get sent out.
 
 
 
@@ -27,7 +33,7 @@ wardMembership = require './ward_membership'
 # and is still in the ward.
 loadPeopleToSyncMailchimp = (callback) ->
   Person = mongoose.model 'Person'
-  Person.find({ $where: "this.inWard && (this.mailchimpSynced == null | this.mailchimpSynced > this.changed)"}, (err, persons) ->
+  Person.find({ $where: "this.email != null && this.inWard && (this.mailchimpSynced == null | this.mailchimpSynced > this.changed)"}, (err, persons) ->
     if err then callback(err) else callback(null, persons)
   )
 

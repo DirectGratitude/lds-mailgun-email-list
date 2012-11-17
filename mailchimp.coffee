@@ -13,6 +13,11 @@ module.exports = class Mailchimp
       console.log(error.message);
 
   # Subscribe people to a mailchimp list. Send either single email or an array of emails.
+  # TODO if someone is subscribed then unsubscribed then we try to subscribe them again,
+  # Mailchimp won't let us. So we need to detect this and send the person an email.
+  # The error code Mailchimp sends is 214. The error message includes the link needed
+  # to re-signup so it should be easy to fashion an email to send to the person to
+  # resign up.
   subscribe: (emails, callback) ->
     # We're sent an array of emails -- munge them into the format Mailchimp wants and
     # send off.
@@ -23,17 +28,17 @@ module.exports = class Mailchimp
       # http://apidocs.mailchimp.com/api/rtfm/listbatchsubscribe.func.php
       @api.listBatchSubscribe { id: @listId, batch: batch, double_optin: false }, (error, response) ->
         if error
-          callback error
+          if _.isFunction callback then callback error
         else
-          callback null, response
+          if _.isFunction callback then callback null, response
     # Else just add the single email.
     else
       # http://apidocs.mailchimp.com/api/1.3/listsubscribe.func.php
       @api.listSubscribe { id: @listId, email_address: emails, double_optin: false }, (error, response) ->
         if error
-          callback error
+          if _.isFunction callback then callback error
         else
-          callback null, response
+          if _.isFunction callback then callback null, response
 
   unsubscribe: (emails, callback) ->
     # We're sent an array of emails.
@@ -41,21 +46,14 @@ module.exports = class Mailchimp
       # http://apidocs.mailchimp.com/api/rtfm/listbatchsubscribe.func.php
       @api.listBatchUnsubscribe { id: @listId, emails: emails }, (error, response) ->
         if error
-          callback error
+          if _.isFunction callback then callback error
         else
-          callback null, response
+          if _.isFunction callback then callback null, response
     # Else just remove the single email.
     else
       # http://apidocs.mailchimp.com/api/1.3/listsubscribe.func.php
       @api.listUnsubscribe { id: @listId, email_address: emails }, (error, response) ->
         if error
-          callback error
+          if _.isFunction callback then callback error
         else
-          callback null, response
-
-testList = config.testList
-testList = new module.exports(testList)
-
-testList.unsubscribe ['fair-child@blue.com'], (err, response) ->
-  console.log err
-  console.log response
+          if _.isFunction callback then callback null, response
