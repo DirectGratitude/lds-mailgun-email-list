@@ -108,7 +108,7 @@ exports.load = (callback) ->
     callback(err, persons)
   )
 
-exports.loadPeopleProblems = (callback) ->
+exports.loadPeopleMissing = (callback) ->
   Person = mongoose.model 'Person'
   Person.find( $or: [{ sex: null }, { email: null }], (err, persons) ->
       if err then callback(err) else callback(null, persons)
