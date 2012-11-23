@@ -562,18 +562,6 @@ code, pre, kbd, samp, .code {
     display: table;
     clear: both; }
 
-h1 {
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  -ms-border-radius: 5px;
-  -o-border-radius: 5px;
-  border-radius: 5px;
-  text-indent: 110%;
-  white-space: nowrap;
-  overflow: hidden;
-  background-image: url(http://brunch.io/images/brunch.png);
-  background-repeat: no-repeat;
-  background-position: 50% 50%;
-  margin-bottom: 0.75em;
-  height: 92px;
-  background-color: #91a2c0; }
+table tbody tr .error {
+  background: red;
+  color: white; }

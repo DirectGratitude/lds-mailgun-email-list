@@ -60,33 +60,8 @@ exports.save = (membership) ->
     else
       person.email = null
 
-    # Try to find the person in the DB. We assume a person's name + phone will stay constant.
-    Person.findOne({ name: person.name, phone: person.phone }, (err, mongoPerson) ->
-      if _.isNull mongoPerson
-        personModel = new Person(person)
-        personModel.inWard = true
-        personModel.save (err) ->
-          if err then callback(err)
-          callback(null)
-          return
-      else
-        # Check if any information has changed.
-        if mongoPerson.email isnt person.email or mongoPerson.address isnt person.address or mongoPerson.phone isnt person.phone or mongoPerson.inWard is false
-          # Copy over new values.
-          mongoPerson.email = person.email
-          mongoPerson.address = person.address
-          mongoPerson.phone = person.phone
-          mongoPerson.inWard = true
-          mongoPerson.changed = new Date()
+    exports.saveMemberMongo(person, callback)
 
-          # Save updated person model
-          mongoPerson.save (err) ->
-            if err then callback(err) else callback(null)
-            return
-        else
-          callback(null)
-          return
-    )
 
   async.forEachSeries(membership, saveMember, (err) ->
     if err then console.log err else console.log "we're done!"
@@ -100,6 +75,39 @@ exports.save = (membership) ->
       member.inWard = false
       mongoPerson.changed = new Date()
       member.save()
+
+exports.saveMemberMongo = (person, callback) ->
+  Person = mongoose.model 'Person'
+  console.log person
+
+  # Try to find the person in the DB. We assume a person's name + phone will stay constant.
+  Person.findOne({ name: person.name, phone: person.phone }, (err, mongoPerson) ->
+    if _.isNull mongoPerson
+      personModel = new Person(person)
+      personModel.inWard = true
+      personModel.save (err) ->
+        if err then callback(err)
+        callback(null)
+        return
+    else
+      # Check if any information has changed.
+      if mongoPerson.email isnt person.email or mongoPerson.address isnt person.address or mongoPerson.phone isnt person.phone  or mongoPerson.sex isnt person.sex or mongoPerson.inWard is false
+        # Copy over new values.
+        mongoPerson.email = person.email
+        mongoPerson.address = person.address
+        mongoPerson.phone = person.phone
+        mongoPerson.sex = person.sex
+        mongoPerson.inWard = true
+        mongoPerson.changed = new Date()
+
+        # Save updated person model
+        mongoPerson.save (err) ->
+          if err then callback(err) else callback(null)
+          return
+      else
+        callback(null)
+        return
+  )
 
 # Load all current members (as marked by the inWard boolean).
 exports.load = (callback) ->

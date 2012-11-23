@@ -1,0 +1,4 @@
+<td><%- @name %></td>
+<td><%- if @email? then @email else "<input class='email'>" %></td>
+<td><%- if @sex? then @sex else "<input class='sex'>" %></td>
+<td class="messages"></td>

@@ -1,4 +1,5 @@
 application = require('app');
+HomeView = require('views/home_view')
 
 module.exports = class Router extends Backbone.Router
 
@@ -6,4 +7,4 @@ module.exports = class Router extends Backbone.Router
     '': 'home'
 
   home: ->
-    $('body').html application.homeView.render().el
+    $('body').html new HomeView().render().el
