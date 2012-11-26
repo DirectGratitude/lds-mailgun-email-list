@@ -8,6 +8,7 @@ module.exports = class HomeView extends Backbone.View
   initialize: ->
     @bindTo app.collections.people, 'reset', @render
 
+  # Render first people w/o sex then w/o email.
   render: ->
     @$el.html HomeTemplate()
     @addAll()

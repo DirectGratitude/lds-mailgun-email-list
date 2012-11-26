@@ -11,7 +11,7 @@ module.exports = class Person extends Backbone.Model
   # return null so the validation doesn't fail.
   validate: (attrs) ->
     unless _.isNull attrs.sex
-      unless _.include ['m', 'M', 'F', 'f'], attrs.sex
+      unless _.include ['m','f'], attrs.sex
         return "Sex must be set as either 'm' or 'f'"
       else
         @trigger 'noerror'
