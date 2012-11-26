@@ -4,7 +4,17 @@
 @import "typography";
 @import "layout";
 
-table tbody tr .error {
-  background: red;
-  color: white;
+table {
+  tbody tr {
+    .error {
+      background: red;
+      color: white;
+    }
+  }
+  input {
+    width: 100%;
+  }
+  th, td, caption {
+    padding: rhythm(0.25) rhythm(0.5);
+  }
 }
