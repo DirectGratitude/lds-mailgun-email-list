@@ -109,7 +109,7 @@ exports.saveMemberMongo = (person, callback) ->
     else
       # Check whether sex or email is changed.
       # If one is, we'll tell our list manager to update things.
-      if person.email?
+      if person.email? and person.inWard
         if mongoPerson.email isnt person.email
           manageLists.changeEmail(mongoPerson.email, person.email)
           mongoPerson.mailchimpSynced = new Date()
@@ -118,8 +118,7 @@ exports.saveMemberMongo = (person, callback) ->
           mongoPerson.mailchimpSynced = new Date()
 
       # Check if any information has changed.
-      if mongoPerson.email isnt person.email or mongoPerson.address isnt person.address or mongoPerson.phone isnt person.phone  or mongoPerson.sex isnt person.sex or mongoPerson.inWard is false
-        console.log 'updating existing member', person
+      if mongoPerson.email isnt person.email or mongoPerson.address isnt person.address or mongoPerson.phone isnt person.phone or mongoPerson.sex isnt person.sex or mongoPerson.inWard is false
         # Copy over new values.
         mongoPerson.email = person.email
         mongoPerson.address = person.address
@@ -146,5 +145,5 @@ exports.load = (callback) ->
 exports.loadPeopleMissingInformation = (callback) ->
   Person = mongoose.model 'Person'
   Person.find( $or: [{ sex: null }, { email: null }], (err, persons) ->
-      if err then callback(err) else callback(null, persons)
+    if err then callback(err) else callback(null, persons)
   )

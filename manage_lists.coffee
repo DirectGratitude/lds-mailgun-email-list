@@ -1,15 +1,23 @@
 config = require './config'
 Mailchimp = require './mailchimp'
 testList = new Mailchimp(config.testList)
+eqList = new Mailchimp(config.eqList)
+rsList = new Mailchimp(config.rsList)
 
 exports.subscribe = (email, callback) ->
   testList.subscribe(email, callback)
 
 # Unsubscribe from the main list and from sub-lists.
 exports.unsubscribe = (email, callback) ->
-  console.log email
   testList.unsubscribe(email, callback)
-  # TODO check if they're on other lists and unsubscribe them as well.
+
+  # Check if they're on other lists and unsubscribe them there as well.
+  eqList.inList email, (err, inList) ->
+    if inList
+      eqList.unsubscribe email
+  rsList.inList email, (err, inList) ->
+    if inList
+      rsList.unsubscribe email
 
 exports.changeEmail = (oldEmail, newEmail) ->
   console.log 'updating email in mailchimp'
@@ -23,12 +31,28 @@ exports.changeEmail = (oldEmail, newEmail) ->
       else
         testList.subscribe(newEmail)
 
-  # TODO check for both
-  # rs and eq lists if the person is in that list and if they are, change their
-  # email.
+      # Change in EQ/RS lists if member there.
+      eqList.inList oldEmail, (err, inList) ->
+        if inList
+          eqList.changeEmail(oldEmail, newEmail)
+      rsList.inList oldEmail, (err, inList) ->
+        if inList
+          rsList.changeEmail(oldEmail, newEmail)
 
 exports.changeSex = (person) ->
-  console.log 'person in changeSex', person
-  # TODO check if
-  # check each list -- if already on correct list, don't subscribe, otherwise do
-  # if on wrong list, unsubscribe.
+  if person.sex is 'f'
+    eqList.inList person.email, (err, inList) ->
+      if inList
+        eqList.unsubscribe person.email
+    rsList.inList person.email, (err, inList) ->
+      unless inList
+        console.log 'subscribing person to rsList'
+        rsList.subscribe person.email
+  else
+    rsList.inList person.email, (err, inList) ->
+      if inList
+        rsList.unsubscribe person.email
+    eqList.inList person.email, (err, inList) ->
+      unless inList
+        console.log 'subscribing person to eqList'
+        eqList.subscribe person.email
