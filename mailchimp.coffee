@@ -57,3 +57,27 @@ module.exports = class Mailchimp
           if _.isFunction callback then callback error
         else
           if _.isFunction callback then callback null, response
+
+  personInfo: (email, callback) ->
+    email = [email]
+    # http://apidocs.mailchimp.com/api/1.3/listmemberinfo.func.php
+    @api.listMemberInfo { id: @listId, email_address: email }, (error, response) ->
+      if error
+        if _.isFunction callback then callback error
+      else
+        if _.isFunction callback then callback null, response
+
+  changeEmail: (oldEmail, newEmail, callback) ->
+    # http://apidocs.mailchimp.com/api/1.3/listupdatemember.func.php
+    @api.listUpdateMember { id: @listId, email_address: oldEmail, merge_vars: { 'NEW-EMAIL': newEmail } }, (error, response) ->
+      if error
+        if _.isFunction callback then callback error
+      else
+        if _.isFunction callback then callback null, response
+
+  inList: (email, callback) ->
+    @personInfo(email, (err, response) ->
+      if err then callback(err)
+      else if response.success is 1 then callback null, true
+      else if response.errors is 1 then callback null, false
+    )

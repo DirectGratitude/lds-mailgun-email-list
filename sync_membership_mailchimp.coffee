@@ -49,7 +49,9 @@ loadPeopleMissingInformation = (callback) ->
     )
 
 # Kick things off.
-wardMembership.load (error, members) ->
-  console.log members
-#loadPeopleToSyncMailchimp((error, persons) -> console.log persons.length)
-#loadPeopleMissingInformation((error, persons) -> console.log persons.length)
+syncFromMembershipList = ->
+  wardMembership.download (err, members) ->
+    wardMembership.save(members)
+
+
+syncFromMembershipList()

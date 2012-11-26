@@ -5,7 +5,7 @@ app.use(express.bodyParser())
 wardMembership = require './ward_membership'
 
 app.get '/people/missing', (req, res) ->
-  wardMembership.loadPeopleMissing (err, people) ->
+  wardMembership.loadPeopleMissingInformation (err, people) ->
     unless err
       for person in people
         person.setValue('id', person.getValue('_id'))
