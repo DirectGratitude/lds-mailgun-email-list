@@ -1,15 +1,15 @@
 config = require './config'
-Mailchimp = require './mailchimp'
-testList = new Mailchimp(config.testList)
-eqList = new Mailchimp(config.eqList)
-rsList = new Mailchimp(config.rsList)
+Mailgun = require './mailgun'
+everyoneList = new Mailgun(config.everyoneList)
+eqList = new Mailgun(config.eqList)
+rsList = new Mailgun(config.rsList)
 
 exports.subscribe = (email, callback) ->
-  testList.subscribe(email, callback)
+  everyoneList.subscribe(email, callback)
 
 # Unsubscribe from the main list and from sub-lists.
 exports.unsubscribe = (email, callback) ->
-  testList.unsubscribe(email, callback)
+  everyoneList.unsubscribe(email, callback)
 
   # Check if they're on other lists and unsubscribe them there as well.
   eqList.inList email, (err, inList) ->
@@ -22,14 +22,14 @@ exports.unsubscribe = (email, callback) ->
 exports.changeEmail = (oldEmail, newEmail) ->
   console.log 'updating email in mailchimp'
   # Check if email is on main list. If not, subscribe them.
-  testList.inList oldEmail, (err, inList) ->
+  everyoneList.inList oldEmail, (err, inList) ->
     if err
       console.log err
     else
       if inList
-        testList.changeEmail(oldEmail, newEmail)
+        everyoneList.changeEmail(oldEmail, newEmail)
       else
-        testList.subscribe(newEmail)
+        everyoneList.subscribe(newEmail)
 
       # Change in EQ/RS lists if member there.
       eqList.inList oldEmail, (err, inList) ->
