@@ -20,33 +20,14 @@ testList = new Mailchimp(testList)
 # write function which fetches people w/ missing info -- e.g. no email + no sex
 # Refactor how things are organized + add config file + setup repo on Github
 # write function to sync people with mailchimp -- pushes everyone to appropriate MailChimp lists
-
 # Build backbone app for admin
-# Just start with problem people view + ui for storing information sort by when added.
-# write function which refreshes membership + lists and emails admin those people who have problems + links to ui for fixing them.
+# Just start with problem people view
+# write function which refreshes membership + lists
+
 # Write unsubscribe text for the emails that get sent out.
-
-
-
-# Generate a master list of people that need to be synced with MailChimp.
-# This is everyone who's mailchimpSync date is earlier then their changed date
-# and is still in the ward.
-loadPeopleToSyncMailchimp = (callback) ->
-  Person = mongoose.model 'Person'
-  Person.find({ $where: "this.email != null && this.inWard && (this.mailchimpSynced == null | this.mailchimpSynced > this.changed)"}, (err, persons) ->
-    if err then callback(err) else callback(null, persons)
-  )
-
-# Return list of people missing either an email address or their sex hasn't been
-# assigned yet.
-loadPeopleMissingInformation = (callback) ->
-  Person = mongoose.model 'Person'
-  Person.find()
-    .where( 'sex', null )
-    .where( 'email', null )
-    .exec( (err, persons) ->
-      if err then callback(err) else callback(null, persons)
-    )
+# Improve sync function so it emails admin when there's new people that need information added.
+# Add ability to edit person view (add little edit button to right of row which shows up on hover and turns all of the fields into inputs)
+# Add ui for showing people sorted by when added.
 
 # Kick things off.
 syncFromMembershipList = ->
