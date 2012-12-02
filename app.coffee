@@ -3,6 +3,8 @@ app = express()
 app.use(express.static(__dirname + '/admin-app/public'))
 app.use(express.bodyParser())
 wardMembership = require './ward_membership'
+#require './sync_membership_mailchimp'
+mailgun = require './mailgun_email_router'
 
 app.get '/people/missing', (req, res) ->
   wardMembership.loadPeopleMissingInformation (err, people) ->
@@ -19,6 +21,8 @@ app.put '/people/:id', (req, res) ->
     else
       res.json 'ok'
   )
+
+app.post '/mailgun', mailgun
 
 app.listen(8080)
 console.log 'server listening on port 8080'

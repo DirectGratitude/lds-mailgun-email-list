@@ -1,5 +1,10 @@
-mongoose = require('mongoose')
-mongoose.connect('mongodb://localhost/stanford2lists')
+mongoose = require 'mongoose'
+config = require './config'
+
+if process.env.NODE_ENV is 'production'
+  mongoose.connect(config.dotcloud_mongo)
+else
+  mongoose.connect('mongodb://localhost/stanford2lists')
 
 # Setup MongoDB schemas.
 Schema = mongoose.Schema
