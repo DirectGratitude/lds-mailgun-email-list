@@ -20,8 +20,6 @@ config = require './config'
 # Just start with problem people view
 # write function which refreshes membership + lists
 
-# Get app running on commercial thing
-# # mongo authentication
 # # Able to send email to list and it gets sent on
 # # cron (and on startup) for fetching the ward list csv
 # # google spreadsheet white lists for who (and why) can send emails to the various lists

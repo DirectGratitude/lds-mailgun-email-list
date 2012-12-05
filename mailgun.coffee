@@ -78,3 +78,36 @@ module.exports = class Mailchimp
       else if statusCode is 200 then callback null, true
       else if statusCode is 404 then callback null, false
     )
+
+  sendEmail: (from, subject, body, message_id, in_reply_to = null, references = null) ->
+    console.log 'inside sendEmail for', @address
+    console.log body
+
+    unless message_id? then return false
+    mailgun_uri = url.parse("https://api.mailgun.net/v2/lists/#{ @address }/members")
+    mailgun_uri.auth = config.mailgunAPI
+
+    email =
+        from: from
+        to: @address
+        subject: subject
+        html: body
+
+    email['h:Message-Id'] = message_id
+    if in_reply_to?
+      email['h:In-Reply-To'] = in_reply_to
+    if references?
+      email['h:References'] = references
+
+    email = querystring.stringify(email)
+
+    request(
+      url: mailgun_uri
+      method: 'POST'
+      headers:
+        'content-type': 'application/x-www-form-urlencoded'
+      body: email
+      (error, response, body) ->
+        console.log response.statusCode
+        console.log body
+    )
