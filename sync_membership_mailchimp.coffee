@@ -6,10 +6,6 @@ mongoose = require('mongoose')
 require './mongoose_schemas'
 wardMembership = require './ward_membership'
 config = require './config'
-Mailchimp = require './mailchimp'
-
-testList = config.testList
-testList = new Mailchimp(testList)
 
 # Store CSV file locally -- get either family email or head of household but prefer family if it exists
 # Simplify / cleanup data
@@ -24,10 +20,16 @@ testList = new Mailchimp(testList)
 # Just start with problem people view
 # write function which refreshes membership + lists
 
-# Write unsubscribe text for the emails that get sent out.
+# Get app running on commercial thing
+# # mongo authentication
+# # Able to send email to list and it gets sent on
+# # cron (and on startup) for fetching the ward list csv
+# # google spreadsheet white lists for who (and why) can send emails to the various lists
+# # Doc page w/ documentation and usernames/passwords/etc for all of this.
+#
 # Improve sync function so it emails admin when there's new people that need information added.
 # Add ability to edit person view (add little edit button to right of row which shows up on hover and turns all of the fields into inputs)
-# Add ui for showing people sorted by when added.
+# Add ui for showing people sorted by when added + what lists they're on.
 
 # Kick things off.
 syncFromMembershipList = ->
