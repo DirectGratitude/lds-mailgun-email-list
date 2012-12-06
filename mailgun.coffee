@@ -81,10 +81,10 @@ module.exports = class Mailchimp
 
   sendEmail: (from, subject, body, message_id, in_reply_to = null, references = null) ->
     console.log 'inside sendEmail for', @address
-    console.log body
 
     unless message_id? then return false
-    mailgun_uri = url.parse("https://api.mailgun.net/v2/lists/#{ @address }/members")
+    domain = @address.split('@')[1]
+    mailgun_uri = url.parse("https://api.mailgun.net/v2/#{ domain }/messages")
     mailgun_uri.auth = config.mailgunAPI
 
     # Append a footer for unsubscribing.

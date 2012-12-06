@@ -1,10 +1,10 @@
 Mailgun = require './mailgun'
+config = require './config'
 everyoneList = new Mailgun(config.everyoneList)
 eqList = new Mailgun(config.eqList)
 rsList = new Mailgun(config.rsList)
 
 module.exports = (req, res) ->
-  console.log req.body
   try
     headers = JSON.parse req.body['message-headers']
   catch error
