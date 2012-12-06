@@ -101,6 +101,8 @@ module.exports = class Mailchimp
       email['h:In-Reply-To'] = in_reply_to
     if references?
       email['h:References'] = references
+
+    email['h:x-been-here'] = 'yes'
     email['h:List-Unsubscribe'] = "%unsubscribe_email%"
 
     email = querystring.stringify(email)
