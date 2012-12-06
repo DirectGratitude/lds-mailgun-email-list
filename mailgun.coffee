@@ -87,6 +87,9 @@ module.exports = class Mailchimp
     mailgun_uri = url.parse("https://api.mailgun.net/v2/lists/#{ @address }/members")
     mailgun_uri.auth = config.mailgunAPI
 
+    # Append a footer for unsubscribing.
+    body += " <br>--------------------------------------------------<br><a href='%mailing_list_unsubscribe_url%'>Unsubscribe from this Stanford Second Ward Email List</a>"
+
     email =
         from: from
         to: @address
@@ -98,6 +101,7 @@ module.exports = class Mailchimp
       email['h:In-Reply-To'] = in_reply_to
     if references?
       email['h:References'] = references
+    email['h:List-Unsubscribe'] = "%unsubscribe_email%"
 
     email = querystring.stringify(email)
 
