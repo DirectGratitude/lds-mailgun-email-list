@@ -98,6 +98,9 @@ module.exports = class Mailchimp
     if references?
       email.headers['References'] = references
 
+    # Add a custom header, X-Been-There, to prevent resending the same email.
+    email.headers['X-Been-There'] = 'true'
+
 
     smtpTransport = nodemailer.createTransport("SMTP",
       service: "Mailgun", # sets automatically host, port and connection security settings
