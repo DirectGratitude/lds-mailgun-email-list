@@ -101,6 +101,10 @@ module.exports = class Mailchimp
     # Add a custom header, X-Been-There, to prevent resending the same email.
     email.headers['X-Been-There'] = 'true'
 
+    if attachments?
+      email.attachments = []
+      for attachment in attachments
+        email.attachments.push { fileName: attachment.name, filePath: attachment.path, contentType: attachment.type }
 
     smtpTransport = nodemailer.createTransport("SMTP",
       service: "Mailgun", # sets automatically host, port and connection security settings

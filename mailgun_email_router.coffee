@@ -19,18 +19,22 @@ module.exports = (req, res) ->
       when 'In-Reply-To' then in_reply_to = header[1]
       when 'References' then references = header[1]
       when 'Subject' then subject = header[1]
-      when 'X-Been-Here' then repeat = true
+      when 'X-Been-There' then repeat = true
 
   # If the x-been-there header is set, this is it's second time through.
   if repeat
     return res.json 'ok'
 
+  attachments = []
+  for name, attachment of req.files
+    attachments.push attachment
+
   # TODO account for attachments
   # TODO check against email white list if the sender has permission.
   switch req.body['To']
-    when "eq@stanford2.mailgun.org" then eqList.sendEmail(req.body.From, req.body.Subject, req.body['body-html'], message_id, in_reply_to, references)
-    when "everyone@stanford2.mailgun.org" then eqList.sendEmail(req.body.from, req.body.subject, req.body['body-html'], message_id, in_reply_to, references)
-    when "rs@stanford2.mailgun.org" then eqList.sendEmail(req.body.from, req.body.subject, req.body['body-html'], message_id, in_reply_to, references)
+    when "eq@stanford2.mailgun.org" then eqList.sendEmail(req.body.From, req.body.Subject, req.body['body-html'], message_id, in_reply_to, references, attachments)
+    when "everyone@stanford2.mailgun.org" then eqList.sendEmail(req.body.from, req.body.subject, req.body['body-html'], message_id, in_reply_to, references, attachments)
+    when "rs@stanford2.mailgun.org" then eqList.sendEmail(req.body.from, req.body.subject, req.body['body-html'], message_id, in_reply_to, references, attachments)
 
   # Tell Mailgun we received things ok.
   res.json 'ok'
