@@ -104,7 +104,11 @@ module.exports = class Mailchimp
     if attachments?
       email.attachments = []
       for attachment in attachments
-        email.attachments.push { fileName: attachment.name, filePath: attachment.path, contentType: attachment.type }
+        emailAttachment = { fileName: attachment.name, filePath: attachment.path, contentType: attachment.type }
+        # Add cid if set for inline images.
+        if attachment.cid?
+          emailAttachment.cid = attachment.cid
+        email.attachments.push emailAttachment
 
     smtpTransport = nodemailer.createTransport("SMTP",
       service: "Mailgun", # sets automatically host, port and connection security settings

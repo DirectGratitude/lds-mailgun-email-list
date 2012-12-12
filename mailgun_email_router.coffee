@@ -27,6 +27,9 @@ module.exports = (req, res) ->
 
   attachments = []
   for name, attachment of req.files
+    for cid, attachment_name of JSON.parse(req.body['content-id-map'])
+      if attachment_name is name
+        attachment['cid'] = cid.slice(1, -1)
     attachments.push attachment
 
   # TODO account for attachments
