@@ -10,6 +10,7 @@
     "coffee-script": "",
     "underscore.string": "x.x.x",
     "underscore": "",
+    "nodemailer": "",
     "async": "",
     "csv": "",
     "moment": "1.x.x",

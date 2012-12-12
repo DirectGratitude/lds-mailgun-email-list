@@ -3,6 +3,7 @@ config = require './config'
 url = require 'url'
 request = require 'request'
 querystring = require 'querystring'
+nodemailer = require 'nodemailer'
 
 module.exports = class Mailchimp
 
@@ -79,41 +80,32 @@ module.exports = class Mailchimp
       else if statusCode is 404 then callback null, false
     )
 
-  sendEmail: (from, subject, body, message_id, in_reply_to = null, references = null) ->
+  sendEmail: (from, subject, body, message_id, in_reply_to = null, references = null, attachments = null) ->
     console.log 'inside sendEmail for', @address
 
     unless message_id? then return false
-    domain = @address.split('@')[1]
-    mailgun_uri = url.parse("https://api.mailgun.net/v2/#{ domain }/messages")
-    mailgun_uri.auth = config.mailgunAPI
-
-    # Append a footer for unsubscribing.
-    body += " <br>--------------------------------------------------<br><a href='%mailing_list_unsubscribe_url%'>Unsubscribe from this Stanford Second Ward Email List</a>"
 
     email =
         from: from
         to: @address
         subject: subject
         html: body
+        messageId: message_id
+        headers: {}
 
-    email['h:Message-Id'] = message_id
     if in_reply_to?
-      email['h:In-Reply-To'] = in_reply_to
+      email.headers['In-Reply-To'] = in_reply_to
     if references?
-      email['h:References'] = references
+      email.headers['References'] = references
 
-    email['h:x-been-here'] = 'yes'
-    email['h:List-Unsubscribe'] = "%unsubscribe_email%"
 
-    email = querystring.stringify(email)
-
-    request(
-      url: mailgun_uri
-      method: 'POST'
-      headers:
-        'content-type': 'application/x-www-form-urlencoded'
-      body: email
-      (error, response, body) ->
-        console.log response.statusCode
-        console.log body
+    smtpTransport = nodemailer.createTransport("SMTP",
+      service: "Mailgun", # sets automatically host, port and connection security settings
+      auth:
+        user: config.mailgun_smtp_user
+        pass: config.mailgun_smtp_pass
     )
+
+    smtpTransport.sendMail email, (err, res) ->
+      if err then console.log(err)
+      console.log 'done', res
