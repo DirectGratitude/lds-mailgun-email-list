@@ -48,4 +48,10 @@ fetchWhiteBlackLists = ->
             model.save()
       )
 
+fetchSendingWhitelist = ->
+  exports.download(config.sendingWhitelist, (err, data) ->
+    exports.sendingWhitelist = data
+  )
+
 fetchWhiteBlackLists()
+fetchSendingWhitelist()

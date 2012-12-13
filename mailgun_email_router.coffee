@@ -3,6 +3,23 @@ config = require './config'
 everyoneList = new Mailgun(config.everyoneList)
 eqList = new Mailgun(config.eqList)
 rsList = new Mailgun(config.rsList)
+spreadsheets = require './google_spreadsheet'
+_ = require 'underscore'
+mimelib = require 'mimelib'
+
+checkSenderPermission = (list, from) ->
+  # Map list email to column name on sending whitelist.
+  switch list
+    when "eq@stanford2.mailgun.org" then list = "eq_list"
+    when "everyone@stanford2.mailgun.org" then list = "everyone"
+    when "rs@stanford2.mailgun.org" then list = "rs_list"
+
+  # Get actual email.
+  from = mimelib.parseAddresses(from)[0]
+
+  # Check the sending email is both on the list and that they have permission.
+  result = _.find spreadsheets.sendingWhitelist, (sender) -> sender.email is from.address and sender[list] is "1"
+  if result? then return true else return false
 
 module.exports = (req, res) ->
   try
@@ -32,8 +49,12 @@ module.exports = (req, res) ->
         attachment['cid'] = cid.slice(1, -1)
     attachments.push attachment
 
-  # TODO account for attachments
-  # TODO check against email white list if the sender has permission.
+  # Check against email sending white list if the sender has permission to post
+  # this list.
+  unless checkSenderPermission(req.body.To, req.body.From)
+    console.log 'Sender rejected:', req.body.From
+    return res.json 'ok'
+
   switch req.body['To']
     when "eq@stanford2.mailgun.org" then eqList.sendEmail(req.body.From, req.body.Subject, req.body['body-html'], message_id, in_reply_to, references, attachments)
     when "everyone@stanford2.mailgun.org" then eqList.sendEmail(req.body.from, req.body.subject, req.body['body-html'], message_id, in_reply_to, references, attachments)

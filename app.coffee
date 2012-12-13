@@ -5,6 +5,7 @@ app.use(express.bodyParser())
 wardMembership = require './ward_membership'
 #require './sync_membership_mailchimp'
 mailgun = require './mailgun_email_router'
+spreadsheets = require './google_spreadsheet'
 
 app.get '/people/missing', (req, res) ->
   wardMembership.loadPeopleMissingInformation (err, people) ->
