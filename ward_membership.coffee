@@ -3,6 +3,7 @@ config = require './config'
 csv = require 'csv'
 fs = require 'fs'
 request = require 'request'
+cronJob = require('cron').CronJob
 mongoose = require('mongoose')
 require './mongoose_schemas'
 _ = require 'underscore'
@@ -147,3 +148,11 @@ exports.loadPeopleMissingInformation = (callback) ->
   Person.find( $or: [{ sex: null }, { email: null }], (err, persons) ->
     if err then callback(err) else callback(null, persons)
   )
+
+syncFromMembershipList = ->
+  exports.download (err, members) ->
+    exports.save(members)
+
+# Pull new members every Wednesday.
+syncMembershipListJob = new cronJob('* * * * * wed', (-> syncFromMembershipList()), true)
+syncFromMembershipList()

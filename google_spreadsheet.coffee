@@ -2,6 +2,7 @@ request = require 'request'
 csv = require 'csv'
 mongoose = require('mongoose')
 require './mongoose_schemas'
+cronJob = require('cron').CronJob
 config = require './config'
 
 exports.download = (spreadsheetUrl, callback) ->
@@ -53,5 +54,9 @@ fetchSendingWhitelist = ->
     exports.sendingWhitelist = data
   )
 
+fetchWhiteBlackListsJob = new cronJob('* * * * * */1', (-> fetchWhiteBlackLists()), true)
+fetchSendingWhiteListJob = new cronJob('* * * * * */1', (-> fetchSendingWhiteListJob()), true)
+
+# Run immediately on startup.
 fetchWhiteBlackLists()
 fetchSendingWhitelist()

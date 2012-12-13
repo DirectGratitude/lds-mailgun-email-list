@@ -9,6 +9,7 @@
     "express": "3.x.x",
     "coffee-script": "",
     "mimelib": "",
+    "cron": "",
     "underscore.string": "x.x.x",
     "underscore": "",
     "nodemailer": "",
