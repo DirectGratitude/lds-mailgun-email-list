@@ -29,25 +29,9 @@ exports.download = (spreadsheetUrl, callback) ->
 
 # White list
 fetchWhiteBlackLists = ->
-  WhiteBlackList = mongoose.model 'whiteblacklist'
-
-  # Remove everything in this collection in MongoDB.
-  WhiteBlackList.remove (err) ->
-    unless err
-      exports.download(config.whitelist, (err, data) ->
-        console.log data
-        for datum in data
-          if datum.Email?
-            model = new WhiteBlackList( { email: datum.Email, type: 'white' } )
-            model.save()
-      )
-      exports.download(config.blacklist, (err, data) ->
-        console.log data
-        for datum in data
-          if datum.Email?
-            model = new WhiteBlackList( { email: datum.Email, type: 'black' } )
-            model.save()
-      )
+  exports.download(config.blacklist, (err, data) ->
+    exports.blacklist = data
+  )
 
 fetchSendingWhitelist = ->
   exports.download(config.sendingWhitelist, (err, data) ->

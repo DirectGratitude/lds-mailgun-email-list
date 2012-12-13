@@ -3,9 +3,21 @@ Mailgun = require './mailgun'
 everyoneList = new Mailgun(config.everyoneList)
 eqList = new Mailgun(config.eqList)
 rsList = new Mailgun(config.rsList)
+spreadsheets = require './google_spreadsheet'
+_ = require 'underscore'
+
+inBlacklist = (email) ->
+  result = _.find spreadsheets.blacklist, (person) -> return person.Email is email
+  if result?
+    return true
+  else
+    return false
 
 exports.subscribe = (email, callback) ->
-  everyoneList.subscribe(email, callback)
+  unless inBlacklist(email)
+    everyoneList.subscribe(email, callback)
+  else
+    callback(null)
 
 # Unsubscribe from the main list and from sub-lists.
 exports.unsubscribe = (email, callback) ->

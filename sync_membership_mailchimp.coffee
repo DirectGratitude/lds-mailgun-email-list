@@ -19,10 +19,13 @@ config = require './config'
 # Build backbone app for admin
 # Just start with problem people view
 # write function which refreshes membership + lists
-
 # # Able to send email to list and it gets sent on
-# # cron (and on startup) for fetching the ward list csv
 # # google spreadsheet white lists for who (and why) can send emails to the various lists
+# # cron (and on startup) for fetching the ward list csv
+
+# Whitelist == add them manually to mailgun
+# Blacklist == block them from being added but perhaps have to remove them manually from mailgun.
+# Add whiters + remove blackers when sending to everyone and always remove blackers
 # # Doc page w/ documentation and usernames/passwords/etc for all of this.
 #
 # Improve sync function so it emails admin when there's new people that need information added.

@@ -21,10 +21,4 @@ PersonSchema = new Schema (
   inWard: Boolean
 )
 
-WhiteBlackListSchema = new Schema (
-  email: { type: String, required: true }
-  type: { type: String, required: true }
-)
-
 Person = mongoose.model 'Person', PersonSchema
-WhiteBlackList = mongoose.model 'whiteblacklist', WhiteBlackListSchema
