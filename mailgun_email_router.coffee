@@ -5,6 +5,7 @@ eqList = new Mailgun(config.eqList)
 rsList = new Mailgun(config.rsList)
 spreadsheets = require './google_spreadsheet'
 _ = require 'underscore'
+sendEmail = require './send_email'
 mimelib = require 'mimelib'
 
 checkSenderPermission = (list, from) ->
@@ -53,7 +54,9 @@ module.exports = (req, res) ->
   # this list.
   unless checkSenderPermission(req.body.To, req.body.From)
     console.log 'Sender rejected:', req.body.From
+    sendEmail(req.body.From, config.email_admin, 'Re: ' + req.body.Subject, "Your email wasn't sent as you don't have permission to send emails to this list. If you believe you should be able to send emails to this list, reply to this email and ask me [the current ward email admin] to give you permission.<br>--------------------<br><br>" + req.body['body-html'], '', message_id)
     return res.json 'ok'
+
 
   switch req.body['To']
     when "eq@stanford2.mailgun.org" then eqList.sendEmail(req.body.From, req.body.Subject, req.body['body-html'], message_id, in_reply_to, references, attachments)

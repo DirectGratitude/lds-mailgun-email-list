@@ -22,10 +22,11 @@ config = require './config'
 # # Able to send email to list and it gets sent on
 # # google spreadsheet white lists for who (and why) can send emails to the various lists
 # # cron (and on startup) for fetching the ward list csv
-
 # Whitelist == add them manually to mailgun
 # Blacklist == block them from being added but perhaps have to remove them manually from mailgun.
-# Add whiters + remove blackers when sending to everyone and always remove blackers
+
+# Send email back to person when their email is reject explaining that they need to be added to list
+# also cc email to the current email admin.
 # # Doc page w/ documentation and usernames/passwords/etc for all of this.
 #
 # Improve sync function so it emails admin when there's new people that need information added.
