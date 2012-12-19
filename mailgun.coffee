@@ -10,7 +10,7 @@ module.exports = class Mailchimp
   apiKey: config.mailgunApiKey
 
   constructor: (@address) ->
-    console.log 'new list address ' + @address
+    console.log 'new list added:' + @address
 
   subscribe: (emails, callback) ->
     mailgun_uri = url.parse("https://api.mailgun.net/v2/lists/#{ @address }/members")
@@ -38,7 +38,6 @@ module.exports = class Mailchimp
     # Else just add the single email.
     else
       apiSubscribe(emails)
-      console.log emails
 
   unsubscribe: (email, callback) ->
     mailgun_uri = url.parse("https://api.mailgun.net/v2/lists/#{ @address }/members/#{ email }")

@@ -2,8 +2,6 @@ config = require './config'
 nodemailer = require 'nodemailer'
 
 module.exports = (to, from, subject, body, message_id, in_reply_to = null, references = null, attachments = null) ->
-  console.log 'inside sendEmail'
-
   unless message_id? then return false
 
   email =
@@ -21,7 +19,6 @@ module.exports = (to, from, subject, body, message_id, in_reply_to = null, refer
 
   # Add a custom header, X-Been-There, to prevent resending the same email.
   email.headers['X-Been-There'] = 'true'
-  console.log email
 
   if attachments?
     email.attachments = []
