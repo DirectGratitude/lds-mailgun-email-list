@@ -60,8 +60,8 @@ module.exports = (req, res) ->
 
   switch req.body['To']
     when "eq@stanford2.mailgun.org" then eqList.sendEmail(req.body.From, req.body.Subject, req.body['body-html'], message_id, in_reply_to, references, attachments)
-    when "everyone@stanford2.mailgun.org" then eqList.sendEmail(req.body.from, req.body.subject, req.body['body-html'], message_id, in_reply_to, references, attachments)
-    when "rs@stanford2.mailgun.org" then eqList.sendEmail(req.body.from, req.body.subject, req.body['body-html'], message_id, in_reply_to, references, attachments)
+    when "everyone@stanford2.mailgun.org" then everyoneList.sendEmail(req.body.from, req.body.subject, req.body['body-html'], message_id, in_reply_to, references, attachments)
+    when "rs@stanford2.mailgun.org" then rsList.sendEmail(req.body.from, req.body.subject, req.body['body-html'], message_id, in_reply_to, references, attachments)
 
   # Tell Mailgun we received things ok.
   res.json 'ok'
