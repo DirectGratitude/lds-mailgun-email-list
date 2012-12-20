@@ -28,6 +28,7 @@ app.get '/refresh-spreadsheets', (req, res) ->
   spreadsheets.fetchBlacklist()
   res.json 'ok'
 
+app.post '/mailgun', mailgun
 
 app.listen(8080)
 console.log 'server listening on port 8080'
