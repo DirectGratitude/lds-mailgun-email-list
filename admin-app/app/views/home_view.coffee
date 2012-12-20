@@ -19,7 +19,9 @@ module.exports = class HomeView extends Backbone.View
   addAll: (models, options) ->
     if app.collections.people.models.length > 0
       @$('table tbody').empty()
-      for person in app.collections.people.models
+      for person in app.collections.people.getWithoutSex()
+        @addOne(person)
+      for person in app.collections.people.getWithoutSexAndEmail()
         @addOne(person)
     else
       @$('table tbody').html '<tr><td>There are no people with missing information to add right now</tr></td>'

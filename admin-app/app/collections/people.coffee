@@ -14,3 +14,9 @@ module.exports = class People extends Backbone.Collection
 
   comparator: (person) ->
     return person.get('name')
+
+  getWithoutSex: ->
+    return @filter (person) -> return person.get('email') isnt null and person.get('sex') is null
+
+  getWithoutSexAndEmail: ->
+    return @filter (person) -> return person.get('email') is null
