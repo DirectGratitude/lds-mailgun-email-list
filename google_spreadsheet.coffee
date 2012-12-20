@@ -28,12 +28,12 @@ exports.download = (spreadsheetUrl, callback) ->
   )
 
 # White list
-fetchWhiteBlackLists = ->
+exports.fetchBlacklist = fetchWhiteBlackLists = ->
   exports.download(config.blacklist, (err, data) ->
     exports.blacklist = data
   )
 
-fetchSendingWhitelist = ->
+exports.fetchWhitelist = fetchSendingWhitelist = ->
   exports.download(config.sendingWhitelist, (err, data) ->
     exports.sendingWhitelist = data
   )
