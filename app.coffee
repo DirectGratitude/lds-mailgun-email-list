@@ -23,7 +23,11 @@ app.put '/people/:id', (req, res) ->
       res.json 'ok'
   )
 
-app.post '/mailgun', mailgun
+app.get '/refresh-spreadsheets', (req, res) ->
+  spreadsheets.fetchWhitelist()
+  spreadsheets.fetchBlacklist()
+  res.json 'ok'
+
 
 app.listen(8080)
 console.log 'server listening on port 8080'
