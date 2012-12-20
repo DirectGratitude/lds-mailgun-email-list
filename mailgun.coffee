@@ -11,6 +11,10 @@ module.exports = class Mailchimp
 
   constructor: (@address) ->
     console.log 'new list added:' + @address
+    switch @address
+      when "eq@stanford2.mailgun.org" then @subject = "[2NDWARD EQ]"
+      when "everyone@stanford2.mailgun.org" then @subject = "[2NDWARD]"
+      when "rs@stanford2.mailgun.org" then @subject = "[2NDWARD RS]"
 
   subscribe: (emails, callback) ->
     mailgun_uri = url.parse("https://api.mailgun.net/v2/lists/#{ @address }/members")
@@ -80,4 +84,5 @@ module.exports = class Mailchimp
     )
 
   sendEmail: (from, subject, body, message_id, in_reply_to = null, references = null, attachments = null) ->
+    subject = @subject + " " + subject
     sendEmail(@address, from, subject, body, message_id, in_reply_to, references, attachments)
