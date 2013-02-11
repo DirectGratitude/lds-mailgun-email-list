@@ -55,6 +55,7 @@ module.exports = (req, res) ->
   unless checkSenderPermission(req.body.To, req.body.From)
     console.log 'Sender rejected:', req.body.From
     sendEmail(req.body.From, config.email_admin, 'Re: ' + req.body.Subject, "Your email wasn't sent as you don't have permission to send emails to this list. If you believe you should be able to send emails to this list, reply to this email and ask me [the current ward email admin] to give you permission.<br>--------------------<br><br>" + req.body['body-html'], '', message_id)
+    sendEmail(config.email_admin, req.body.From, 'FWD: ' + req.body.Subject, "This email was sent to #{ req.body.To } and rejected. If the email should have been sent, add the person who sent it to the sender whitelist and tell them to resend it.<br>--------------------<br><br>" + req.body['body-html'], '', message_id)
     return res.json 'ok'
 
 

@@ -32,7 +32,7 @@ exports.unsubscribe = (email, callback) ->
       rsList.unsubscribe email
 
 exports.changeEmail = (oldEmail, newEmail) ->
-  console.log 'updating email in mailchimp'
+  console.log 'updating email in mailchimp from ' + oldEmail + ' to ' + newEmail
   # Check if email is on main list. If not, subscribe them.
   everyoneList.inList oldEmail, (err, inList) ->
     if err

@@ -10,13 +10,13 @@ module.exports = class Mailchimp
   apiKey: config.mailgunApiKey
 
   constructor: (@address) ->
-    console.log 'new list added:' + @address
     switch @address
       when "eq@stanford2.mailgun.org" then @subject = "[2NDWARD EQ]"
       when "everyone@stanford2.mailgun.org" then @subject = "[2NDWARD]"
       when "rs@stanford2.mailgun.org" then @subject = "[2NDWARD RS]"
 
   subscribe: (emails, callback) ->
+    console.log "subscribed #{ emails } to #{ @address }"
     mailgun_uri = url.parse("https://api.mailgun.net/v2/lists/#{ @address }/members")
     mailgun_uri.auth = config.mailgunAPI
     apiSubscribe = (email_address) ->
@@ -28,8 +28,6 @@ module.exports = class Mailchimp
           'content-type': 'application/x-www-form-urlencoded'
         body: body
         (error, response, body) ->
-          console.log response.statusCode
-          console.log body
           if _.isFunction callback
             callback null, body, response.statusCode
       )
@@ -44,14 +42,13 @@ module.exports = class Mailchimp
       apiSubscribe(emails)
 
   unsubscribe: (email, callback) ->
+    console.log "unsubscribed #{ email } from #{ @address }"
     mailgun_uri = url.parse("https://api.mailgun.net/v2/lists/#{ @address }/members/#{ email }")
     mailgun_uri.auth = config.mailgunAPI
     request(
       url: mailgun_uri
       method: 'DELETE'
       (error, response, body) ->
-        console.log response.statusCode
-        console.log body
         if _.isFunction callback
           callback null, body, response.statusCode
     )
@@ -65,13 +62,12 @@ module.exports = class Mailchimp
       url: mailgun_uri
       method: 'GET'
       (error, response, body) ->
-        console.log response.statusCode
-        console.log body
         if _.isFunction callback
           callback null, body, response.statusCode
     )
 
   changeEmail: (oldEmail, newEmail, callback) ->
+    console.log "Changed #{ oldEmail } to #{ newEmail }"
     @subscribe(newEmail)
     @unsubscribe(oldEmail)
 

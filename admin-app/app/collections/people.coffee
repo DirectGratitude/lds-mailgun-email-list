@@ -8,7 +8,7 @@ module.exports = class People extends Backbone.Collection
   # TODO load everyone and create a missing person function to filter out
   # those.
   initialize: ->
-    $.getJSON('/people/missing', (people) =>
+    $.getJSON('/people', (people) =>
       @reset people
     )
 
@@ -16,7 +16,7 @@ module.exports = class People extends Backbone.Collection
     return person.get('name')
 
   getWithoutSex: ->
-    return @filter (person) -> return person.get('email') isnt null and person.get('sex') is null
+    return @filter (person) -> return person.get('email') isnt null and person.get('sex') is null and person.get('inWard')
 
   getWithoutSexAndEmail: ->
-    return @filter (person) -> return person.get('email') is null
+    return @filter (person) -> return person.get('email') is null and person.get('inWard')

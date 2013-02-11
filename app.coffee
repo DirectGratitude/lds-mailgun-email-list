@@ -7,8 +7,8 @@ wardMembership = require './ward_membership'
 mailgun = require './mailgun_email_router'
 spreadsheets = require './google_spreadsheet'
 
-app.get '/people/missing', (req, res) ->
-  wardMembership.loadPeopleMissingInformation (err, people) ->
+app.get '/people', (req, res) ->
+  wardMembership.loadPeople (err, people) ->
     unless err
       for person in people
         person.setValue('id', person.getValue('_id'))

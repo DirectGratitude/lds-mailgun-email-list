@@ -10,32 +10,30 @@ _ = require 'underscore'
 manageLists = require './manage_lists'
 
 exports.download = (callback) ->
-  #request.post({ url: 'https://www.lds.org/login.html', form: { username: config.ldsUsername, password: config.ldsPassword }}, (error, response, body) ->
+  request.post({ url: 'https://www.lds.org/login.html', form: { username: config.ldsUsername, password: config.ldsPassword }}, (error, response, body) ->
     #console.log error
     #console.log response.statusCode
     #console.log body
+    #console.log "https://lds.org/directory/services/ludrs/unit/member-list/#{ config.ldsUnitId }/csv"
 
-    #request("https://lds.org/directory/services/ludrs/unit/member-list/#{ config.ldsUnitId }/csv", (error, response, body) ->
+    request("https://lds.org/directory/services/ludrs/unit/member-list/#{ config.ldsUnitId }/csv", (error, response, body) ->
       #console.log error
       #console.log response.statusCode
       #console.log body
-  #fs.writeFile("ward.csv", body)
-  body = fs.readFileSync('ward2.csv', 'utf-8')
-  #console.log body
-  members = []
-  csv()
-    .from(body, { columns: true })
-    .transform( (data, index) ->
-      members.push data
+      members = []
+      csv()
+        .from(body, { columns: true })
+        .transform( (data, index) ->
+          members.push data
+        )
+        .on('end', ->
+          callback null, members
+        )
+        .on('error', (error) ->
+          callback error
+        )
     )
-    .on('end', ->
-      callback null, members
-    )
-    .on('error', (error) ->
-      callback error
-    )
-    #)
-  #)
+  )
 
 
 exports.save = (members) ->
@@ -65,12 +63,11 @@ exports.save = (members) ->
     exports.saveMemberMongo(person, callback)
 
 
-  # Loop through downloaded members serially.
+  # Check if any members in the DB aren't there any more. If they're not,
+  # unsubscribe them from their lists and mark that they're not in the ward any longer.
   async.forEachSeries members, saveMember, (err) ->
-    if err then console.log err else console.log "we're done!"
+    if err then console.log err else console.log "we're done! Finished syncing list at " + new Date()
 
-    # Check if any members in the DB aren't there any more. If they're not,
-    # unsubscribe them from their lists and mark that they're not in the ward any longer.
     exports.load (err, currentMembers) ->
       membersThatAreNoMore = _.filter(currentMembers, (cmember) -> if _.find(members, (member) -> return member['Head Of House Name'] is cmember.name and member['Family Phone'] is cmember.phone)? then return false else return true)
       console.log 'membersnomore', membersThatAreNoMore
@@ -83,8 +80,6 @@ exports.save = (members) ->
 
         # Unsubscribe from email lists.
         manageLists.unsubscribe member.email, (err, result) ->
-          console.log 'unsubscribed someone from mailchimp'
-          console.log result
           if err then console.log err
 
 # Save or update ward member to MongoDB and to Mailchimp.
@@ -94,7 +89,7 @@ exports.saveMemberMongo = (person, callback) ->
   # Try to find the person in the DB. We assume a person's name + phone will stay constant.
   Person.findOne({ name: person.name, phone: person.phone }, (err, mongoPerson) ->
     if _.isNull mongoPerson
-      console.log 'saving new member', person
+      console.log 'saving new member', person.name
       personModel = new Person(person)
       personModel.inWard = true
       personModel.mailchimpSynced = new Date()
@@ -113,26 +108,32 @@ exports.saveMemberMongo = (person, callback) ->
       if person.email? and person.inWard
         if mongoPerson.email isnt person.email
           manageLists.changeEmail(mongoPerson.email, person.email)
+          manageLists.changeSex(person)
           mongoPerson.mailchimpSynced = new Date()
         if mongoPerson.sex isnt person.sex
           manageLists.changeSex(person)
           mongoPerson.mailchimpSynced = new Date()
 
       # Check if any information has changed.
-      if mongoPerson.email isnt person.email or mongoPerson.address isnt person.address or mongoPerson.phone isnt person.phone or mongoPerson.sex isnt person.sex or mongoPerson.inWard is false
-        # Copy over new values.
-        mongoPerson.email = person.email
-        mongoPerson.address = person.address
-        mongoPerson.phone = person.phone
-        mongoPerson.sex = person.sex
+      if mongoPerson.email isnt person.email and person.email? or mongoPerson.address isnt person.address or mongoPerson.phone isnt person.phone or mongoPerson.sex isnt person.sex and person.sex? or mongoPerson.inWard is false
+        # Copy over new values (if they exist).
+        if person.email?
+          mongoPerson.email = person.email
+        if person.address?
+          mongoPerson.address = person.address
+        if person.phone?
+          mongoPerson.phone = person.phone
+        if person.sex?
+          mongoPerson.sex = person.sex
+
         mongoPerson.inWard = true
+        console.log "person changed", mongoPerson.name
         mongoPerson.changed = new Date()
 
         # Save updated person model to Mongo.
         mongoPerson.save (err, mongoPerson) ->
           if err then return callback(err) else return callback(null, mongoPerson)
       else
-        console.log 'nothing needed updating'
         return callback(null, mongoPerson)
   )
 
@@ -143,9 +144,9 @@ exports.load = (callback) ->
     callback(err, persons)
   )
 
-exports.loadPeopleMissingInformation = (callback) ->
+exports.loadPeople = (callback) ->
   Person = mongoose.model 'Person'
-  Person.find( $or: [{ sex: null }, { email: null }], (err, persons) ->
+  Person.find({}, (err, persons) ->
     if err then callback(err) else callback(null, persons)
   )
 
@@ -156,3 +157,5 @@ syncFromMembershipList = ->
 # Pull new members every Wednesday.
 syncMembershipListJob = new cronJob('* * * * * wed', (-> syncFromMembershipList()), true)
 syncFromMembershipList()
+#exports.download (err, members) ->
+  #console.log members
