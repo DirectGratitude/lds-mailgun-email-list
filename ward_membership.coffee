@@ -36,10 +36,11 @@ exports.download = (callback) ->
   )
 
 
-exports.save = (members) ->
+exports.save = (members, saveCallback) ->
   Person = mongoose.model 'Person'
 
   # Function to save / update a person model.
+  # We use async below to loop through members and save each.
   saveMember = (member, callback) ->
     # Pull out the relevant data into a person object.
     person = {}
@@ -67,6 +68,10 @@ exports.save = (members) ->
   # unsubscribe them from their lists and mark that they're not in the ward any longer.
   async.forEachSeries members, saveMember, (err) ->
     if err then console.log err else console.log "we're done! Finished syncing list at " + new Date()
+
+    # We've added any new members, return flow back to syncMembershipListJob to check
+    # if new people have been added.
+    saveCallback()
 
     exports.load (err, currentMembers) ->
       membersThatAreNoMore = _.filter(currentMembers, (cmember) -> if _.find(members, (member) -> return member['Head Of House Name'] is cmember.name and member['Family Phone'] is cmember.phone)? then return false else return true)
@@ -151,8 +156,16 @@ exports.loadPeople = (callback) ->
   )
 
 syncFromMembershipList = ->
+  started = new Date()
   exports.download (err, members) ->
-    exports.save(members)
+    exports.save(members, ->
+      Person = mongoose.model 'Person'
+      Person.find( { $gt: started }, (err, persons) ->
+        console.log persons.length, 'people were added'
+        if persons.length > 0
+          sendEmail(config.email_admin, "app@stanford2.mailgun.org", "New Members Added", "New members have been added! Visit http://69.164.194.245:8080/ and fill in missing information.")
+      )
+    )
 
 # Pull new members every Wednesday.
 syncMembershipListJob = new cronJob('0 0 0 * * wed', syncFromMembershipList)
