@@ -1,7 +1,7 @@
 config = require './config'
 nodemailer = require 'nodemailer'
 
-module.exports = (to, from, subject, body, message_id, in_reply_to = null, references = null, attachments = null) ->
+module.exports = (to, from, subject, body, message_id = "", in_reply_to = null, references = null, attachments = null) ->
   unless message_id? then return false
 
   email =

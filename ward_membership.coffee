@@ -8,6 +8,7 @@ mongoose = require('mongoose')
 require './mongoose_schemas'
 _ = require 'underscore'
 manageLists = require './manage_lists'
+sendEmail = require './send_email'
 
 exports.download = (callback) ->
   request.post({ url: 'https://www.lds.org/login.html', form: { username: config.ldsUsername, password: config.ldsPassword }}, (error, response, body) ->
@@ -95,6 +96,7 @@ exports.saveMemberMongo = (person, callback) ->
   Person.findOne({ name: person.name, phone: person.phone }, (err, mongoPerson) ->
     if _.isNull mongoPerson
       console.log 'saving new member', person.name
+      exports.newPersons += 1
       personModel = new Person(person)
       personModel.inWard = true
       personModel.mailchimpSynced = new Date()
@@ -156,15 +158,12 @@ exports.loadPeople = (callback) ->
   )
 
 syncFromMembershipList = ->
-  started = new Date()
+  exports.newPersons = 0
   exports.download (err, members) ->
     exports.save(members, ->
-      Person = mongoose.model 'Person'
-      Person.find( { $gt: started }, (err, persons) ->
-        console.log persons.length, 'people were added'
-        if persons.length > 0
-          sendEmail(config.email_admin, "app@stanford2.mailgun.org", "New Members Added", "New members have been added! Visit http://69.164.194.245:8080/ and fill in missing information.")
-      )
+      console.log exports.newPersons, 'people were added'
+      if exports.newPersons > 0
+        sendEmail(config.email_admin, "Stanford Email Lists App <app@stanford2.mailgun.org>", "New Member(s) Added", "New member(s) have been added! Visit http://69.164.194.245:8080/ and fill in missing information.")
     )
 
 # Pull new members every Wednesday.
