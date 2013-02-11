@@ -155,7 +155,6 @@ syncFromMembershipList = ->
     exports.save(members)
 
 # Pull new members every Wednesday.
-syncMembershipListJob = new cronJob('* * * * * wed', (-> syncFromMembershipList()), true)
+syncMembershipListJob = new cronJob('0 0 0 * * wed', syncFromMembershipList)
+syncMembershipListJob.start()
 syncFromMembershipList()
-#exports.download (err, members) ->
-  #console.log members
